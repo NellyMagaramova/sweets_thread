@@ -39,7 +39,7 @@ void Sweets::readFile(std::string &filepath)
 					
 					this->buf.push(file_buffer);
 					file_buffer.erase();
-				//	this->data_cond.notify_one();
+			
 					lk.unlock();
 					
 				}
@@ -63,7 +63,7 @@ void Sweets::readFile(std::string &filepath)
 
 Sweets::Sweets() : m_halva(0), m_marmelad(0), m_zefir(0),m_condensedMilk(0), m_pastila(0), m_pechenie(0), m_waffle(0), m_jam(0), m_eclair(0), m_pie(0), m_sweets(0) {}
 Sweets::~Sweets() {
-	//delete m_halva;delete m_halva; delete m_marmelad; delete m_zefir; delete m_condensedMilk; delete m_pastila; delete m_pechenie; delete m_waffle; delete m_jam, delete m_eclair; delete m_pie; delete m_sweets;
+	
 
 }
 void Sweets::revizor() {
@@ -75,11 +75,7 @@ void Sweets::revizor() {
 		string dataToCount;
 		std::unique_lock<std::mutex>lk(this->mut);
 
-		//while (this->buf.empty())
-		//{
-		//	//data_cond.wait(lk);
-		//	
-		//}
+	
 
 		dataToCount = buf.front();
 
@@ -99,7 +95,7 @@ void Sweets::revizor() {
 		if (dataToCount.find("Sweets") != std::string::npos) m_sweets = m_sweets + 1;
 		if (dataToCount.find("Pie") != std::string::npos)m_pie = m_pie + 1;
 
-		/*if (dataToCount.find("Jujube") != std::string::npos)
+		if (dataToCount.find("Jujube") != std::string::npos)
 		{
 			
 			buf.pop();
@@ -109,7 +105,7 @@ void Sweets::revizor() {
 		
 		}
 	
-*/
+
 
 		dataToCount.erase();
 		lk.unlock();
@@ -128,11 +124,7 @@ void Sweets::writeToFile(std::string& filepath)
 		std::string dataToFile;
 		std::unique_lock<std::mutex>lk(this->mut);
 
-		/*while (this->buf.empty())
-		{
-			data_cond.wait(lk);
-
-		}*/
+		
 
 		dataToFile = this->buf.front();
 		
@@ -150,9 +142,8 @@ void Sweets::writeToFile(std::string& filepath)
 		this->buf.pop();
 		dataToFile.erase();
 		lk.unlock();
-	//	data_cond.notify_one();
+
 	}
-	/*if (result.is_open())
-		result.close();*/
+	
 
 };
