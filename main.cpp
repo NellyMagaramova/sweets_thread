@@ -50,17 +50,18 @@ int main(int argc, char* argv[]) {
 
 	Sweets obj;
 	std::thread func_read(&Sweets::readFile,&obj,std::ref(fileopen));
-	func_read.join();
-	std::thread func_write(&Sweets::writeToFile, &obj, std::ref(fileclose));
+
+	
 
 	std::thread func_rev(&Sweets::revizor, &obj);
 
+	std::thread func_write(&Sweets::writeToFile, &obj, std::ref(fileclose));
 	
-	
-
-	
+	func_read.join();
 	func_rev.join();
+	
 	func_write.join();
+	
 
 	std::cout << "open file with results" << std::endl;
 
