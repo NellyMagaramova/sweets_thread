@@ -3,6 +3,8 @@
 #include <string>
 #include <mutex>
 #include <queue>
+#include <fstream>
+#include <shared_mutex>
 
 
 
@@ -17,8 +19,6 @@ public:
 private:
 	std::queue<std::string>buf;
 
-	
-
 		int m_halva;
 		int m_marmelad;
 		int m_zefir;
@@ -30,13 +30,12 @@ private:
 		int m_eclair;
 		int m_pie;
 		int m_sweets;
-
 		bool m_z;
 
-
-	
-	std::mutex mut;
-	std::condition_variable data_cond;
+	//	std::mutex mut;
+		std::shared_mutex mut;
+//	std::mutex mut;
+	std::condition_variable_any data_cond;
 	
 
 };
