@@ -32,8 +32,8 @@ private:
 		int m_sweets;
 		bool m_z;
 
-	//	std::mutex mut;
-		std::shared_mutex mut;
+		std::mutex mut;
+	//	std::shared_mutex mut;
 //	std::mutex mut;
 	std::condition_variable_any data_cond;
 	
