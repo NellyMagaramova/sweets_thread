@@ -28,24 +28,24 @@ int main(int argc, char* argv[]) {
 	if (argc == 3) {fileopen = string(argv[1]);  fileclose = string(argv[2]);}
 
 
-	//std::ifstream stream(fileopen);
+	std::ifstream stream(fileopen);
 	
 
-	//while(!stream.is_open()) {
-	//	std::cout << "\n \n the path:" << std::endl;
-	//	cout <<fileopen;
-	//	cout << "\n is not correct \n";
+	while(!stream.is_open()) {
+		std::cout << "\n \n the path:" << std::endl;
+		cout <<fileopen;
+		cout << "\n is not correct \n";
 
-	//	fileopen.erase();
+		fileopen.erase();
 
-	//	cout << "Enter a new path to download file \n";
-	//	
-	//	cin >> fileopen;
+		cout << "Enter a new path to download file \n";
+		
+		cin >> fileopen;
 
-	//	stream.open(fileopen);
-	//	cout << std::endl;
-	//}
-	//stream.close();
+		stream.open(fileopen);
+		cout << std::endl;
+	}
+	stream.close();
 
 
 	Sweets obj;
