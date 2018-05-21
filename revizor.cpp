@@ -22,7 +22,7 @@ void Sweets::readFile(std::string &filepath)
 
 	else
 	{
-		std::unique_lock<std::shared_mutex>lk(this->mut);  //для записи
+		std::unique_lock<std::mutex>lk(this->mut);  //для записи
 
 		while (!stream.eof())
 		
@@ -39,7 +39,9 @@ void Sweets::readFile(std::string &filepath)
 					
 					this->buf.push(file_buffer);
 					file_buffer.erase();
-					this->data_cond.notify_one();
+				//	this->data_cond.notify_one();
+					lk.unlock();
+					
 				}
 			}
 		}
@@ -71,16 +73,17 @@ void Sweets::revizor() {
 	{
 		m_z = false;
 		string dataToCount;
-		std::shared_lock<std::shared_mutex>lk(this->mut);
+		std::unique_lock<std::mutex>lk(this->mut);
 
-		while (this->buf.empty())
-		{
-			data_cond.wait(lk);
-		}
+		//while (this->buf.empty())
+		//{
+		//	//data_cond.wait(lk);
+		//	
+		//}
 
 		dataToCount = buf.front();
 
-		cout << dataToCount;
+		cout <<"revizor  "<<dataToCount;
 	
 		
 		if (dataToCount.find("Halva") != std::string::npos) m_halva = m_halva + 1;
@@ -99,14 +102,11 @@ void Sweets::revizor() {
 		/*if (dataToCount.find("Jujube") != std::string::npos)
 		{
 			
-			
 			buf.pop();
 			buf.push("Zefir");
 			dataToCount.erase();
 			dataToCount = buf.front();
 		
-
-			
 		}
 	
 */
@@ -126,13 +126,13 @@ void Sweets::writeToFile(std::string& filepath)
 	{
 		
 		std::string dataToFile;
-		std::shared_lock<std::shared_mutex>lk(this->mut);
+		std::unique_lock<std::mutex>lk(this->mut);
 
-		while (this->buf.empty())
+		/*while (this->buf.empty())
 		{
 			data_cond.wait(lk);
 
-		}
+		}*/
 
 		dataToFile = this->buf.front();
 		
@@ -147,18 +147,12 @@ void Sweets::writeToFile(std::string& filepath)
 
 		}
 
-		
-	
-		
 		this->buf.pop();
-
-
 		dataToFile.erase();
 		lk.unlock();
-		data_cond.notify_one();
-		
-
+	//	data_cond.notify_one();
 	}
-	result.close();
+	/*if (result.is_open())
+		result.close();*/
 
 };
