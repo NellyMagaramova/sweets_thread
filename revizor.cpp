@@ -17,32 +17,51 @@ void Sweets::readFile(std::string &filepath)
 	std::ifstream stream(filepath);
 	char ff;
 	string file_buffer;
+
+	
 	
 	if (!stream.is_open()) std::cout << "error openning\n";
 
 	else
 	{
+	//	m_z = true;
 		std::unique_lock<std::mutex>lk(this->mut);  //для записи
+		flag = true;
+		
+		 
+		//std::lock_guard<std::mutex>lk(mut);
 
-		while (!stream.eof())
-		
+	/*	while (m_z==false)
 		{
-			ff = stream.get();
-		
-			if (ff>0)
+			data_cond.wait(lk);
+		}*/
+		//data_cond.
+	
+		while (flag=true)
+		{
+			//mut.lock();
+			while (!stream.eof())
 			{
-			
-				file_buffer += ff;
-			
-				if (ff == '\n')
+				ff = stream.get();
+
+				if (ff > 0)
 				{
-					
-					this->buf.push(file_buffer);
-					file_buffer.erase();
-			
-					lk.unlock();
-					
+
+					file_buffer += ff;
+
+					if ((ff == '\n') || (ff == '\r'))
+					{
+
+						this->buf.push(file_buffer);
+
+						file_buffer.clear();
+						data_cond.notify_one();
+						lk.unlock();
+					//	mut.unlock();
+						flag = false;
+					}
 				}
+
 			}
 		}
 	}
@@ -69,11 +88,16 @@ Sweets::~Sweets() {
 void Sweets::revizor() {
 	
 
-	while (!this->buf.empty()) 
+	while (!buf.empty()) 
 	{
-		m_z = false;
+	//	m_z = false;
 		string dataToCount;
 		std::unique_lock<std::mutex>lk(this->mut);
+
+		/*while (buf.empty())
+		{
+			data_cond.wait(lk);
+		}*/
 
 	
 
@@ -109,6 +133,7 @@ void Sweets::revizor() {
 
 		dataToCount.erase();
 		lk.unlock();
+		data_cond.notify_one();
 	}
 
 	
@@ -118,13 +143,16 @@ void Sweets::writeToFile(std::string& filepath)
 {
 	ofstream result(filepath);
 	
-	while (!this->buf.empty())
+	while (!buf.empty())
 	{
 		
 		std::string dataToFile;
 		std::unique_lock<std::mutex>lk(this->mut);
 
-		
+	/*	while (buf.empty())
+		{
+			data_cond.wait(lk);
+		}*/
 
 		dataToFile = this->buf.front();
 		
@@ -140,10 +168,16 @@ void Sweets::writeToFile(std::string& filepath)
 		}
 
 		this->buf.pop();
+		
 		dataToFile.erase();
+		flag = true;
 		lk.unlock();
+		
+		
+
 
 	}
+//	result.close();
 	
 
 };
