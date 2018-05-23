@@ -9,7 +9,9 @@
 #include <mutex>
 #include <queue>
 #include <windows.h>
+
 using namespace std;
+
 
 void Sweets::readFile(std::string &filepath) 
 {
@@ -24,59 +26,63 @@ void Sweets::readFile(std::string &filepath)
 
 	else
 	{
-	//	m_z = true;
+		//	m_z = true;
 		std::unique_lock<std::mutex>lk(this->mut);  //для записи
 		flag = true;
-		
-		 
-		//std::lock_guard<std::mutex>lk(mut);
 
-	/*	while (m_z==false)
-		{
-			data_cond.wait(lk);
-		}*/
-		//data_cond.
-	
-		while (flag=true)
-		{
-			//mut.lock();
-			while (!stream.eof())
+
+		//	std::lock_guard<std::mutex>lk(mut);
+
+		/*	while (m_z==false)
 			{
-				ff = stream.get();
+				data_cond.wait(lk);
+			}*/
+			//data_cond.
 
-				if (ff > 0)
+
+				//mut.lock();
+		while (!stream.eof())
+		{
+
+
+
+			ff = stream.get();
+
+			if (ff > 0)
+			{
+
+				file_buffer += ff;
+
+				if ((ff == '\n') || (ff == '\r'))
 				{
 
-					file_buffer += ff;
+					this->buf.push(file_buffer);
 
-					if ((ff == '\n') || (ff == '\r'))
-					{
+					file_buffer.clear();
+					flag = false;
+					//data_cond.wait(lk);
+					//    data_cond.notify_all();
+							lk.unlock();
+						//	mut.unlock();
 
-						this->buf.push(file_buffer);
-
-						file_buffer.clear();
-						data_cond.notify_one();
-						lk.unlock();
-					//	mut.unlock();
-						flag = false;
-					}
 				}
-
 			}
+
 		}
+
+
+		std::cout << "Halva" << "  " << m_halva << endl;
+		std::cout << "Jujube" << "  " << m_marmelad << endl;
+		std::cout << "Zefir" << "  " << m_zefir << endl;
+		std::cout << "Condensed milk" << "  " << m_condensedMilk << endl;
+		std::cout << "Pastila" << "  " << m_pastila << endl;
+		std::cout << "Waffle" << "  " << m_waffle << endl;
+		std::cout << "Cookie" << "  " << m_pechenie << endl;
+		std::cout << "Jam" << "  " << m_jam << endl;
+		std::cout << "Eclair" << "  " << m_eclair << endl;
+		std::cout << "Sweets" << "  " << m_sweets << endl;
+		std::cout << "Pie" << "  " << m_pie << endl;
 	}
-	std::cout << "Halva" << "  " << m_halva <<endl;
-	std::cout << "Jujube" << "  " << m_marmelad << endl;
-	std::cout << "Zefir" << "  " << m_zefir << endl;
-	std::cout << "Condensed milk" << "  " << m_condensedMilk << endl;
-	std::cout << "Pastila" << "  " << m_pastila << endl;
-	std::cout << "Waffle" << "  " << m_waffle << endl;
-	std::cout << "Cookie" << "  " << m_pechenie << endl;
-	std::cout << "Jam" << "  " << m_jam << endl;
-	std::cout << "Eclair" << "  " << m_eclair << endl;
-	std::cout << "Sweets" << "  " << m_sweets << endl;
-	std::cout << "Pie" << "  " << m_pie << endl;
-		
 	
 }
 
@@ -94,10 +100,10 @@ void Sweets::revizor() {
 		string dataToCount;
 		std::unique_lock<std::mutex>lk(this->mut);
 
-		/*while (buf.empty())
+		while (buf.empty())
 		{
 			data_cond.wait(lk);
-		}*/
+		}
 
 	
 
@@ -133,7 +139,7 @@ void Sweets::revizor() {
 
 		dataToCount.erase();
 		lk.unlock();
-		data_cond.notify_one();
+		//data_cond.notify_one();
 	}
 
 	
@@ -142,42 +148,60 @@ void Sweets::revizor() {
 void Sweets::writeToFile(std::string& filepath) 
 {
 	ofstream result(filepath);
-	
-	while (!buf.empty())
-	{
-		
-		std::string dataToFile;
-		std::unique_lock<std::mutex>lk(this->mut);
-
-	/*	while (buf.empty())
+	if (!result.is_open()) std::cout << "error openning result file\n";
+	/*try
+	{*/
+		while (!buf.empty())
 		{
-			data_cond.wait(lk);
-		}*/
 
-		dataToFile = this->buf.front();
-		
 
-		if (result.is_open())
-		{
-			if ((dataToFile.find("Sweets") != std::string::npos) || (dataToFile.find("Jujube") != std::string::npos) || (dataToFile.find("Zefir") != std::string::npos) || (dataToFile.find("Condensed milk") != std::string::npos) || (dataToFile.find("Cookie") != std::string::npos))
+				std::unique_lock<std::mutex>lkc(this->mut);
+			//std::lock_guard<std::mutex>lkc(mut);
+
+			while (buf.empty())
 			{
-				
-				result << dataToFile;
+			data_cond.wait(lkc);
 			}
 
+			//mut.lock();
+			std::string dataToFile;
+			dataToFile = this->buf.front();
+
+
+			if (result.is_open())
+			{
+				if ((dataToFile.find("Sweets") != std::string::npos) || (dataToFile.find("Jujube") != std::string::npos) || (dataToFile.find("Zefir") != std::string::npos) || (dataToFile.find("Condensed milk") != std::string::npos) || (dataToFile.find("Cookie") != std::string::npos))
+				{
+
+					result << dataToFile;
+				}
+
+			}
+
+			this->buf.pop();
+
+			dataToFile.clear();
+		//	flag = true;
+			cout <<"data  "<< dataToFile<<std::endl;
+		//	mut.unlock();
+			//	data_cond.notify_one();
+	//		lkc.unlock();
+
+			//		result.close();
+
+
 		}
+		result.close();
+	//}
 
-		this->buf.pop();
-		
-		dataToFile.erase();
-		flag = true;
-		lk.unlock();
-		
-		
+	//catch (const std::exception&)
 
-
+	/*catch (const std::exception& )
+	{
+	
 	}
-//	result.close();
+	*/
+
 	
 
 };
