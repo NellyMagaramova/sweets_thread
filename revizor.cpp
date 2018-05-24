@@ -19,9 +19,7 @@ void Sweets::readFile(std::string &filepath)
 	std::ifstream stream(filepath);
 	char ff;
 	string file_buffer;
-
-	
-	
+		
 	if (!stream.is_open()) std::cout << "error openning\n";
 
 	else
@@ -31,21 +29,15 @@ void Sweets::readFile(std::string &filepath)
 		flag = true;
 
 
-		//	std::lock_guard<std::mutex>lk(mut);
-
-		/*	while (m_z==false)
+		//если очередь не пустая, то поток ожидает
+			while (!buf.empty())
 			{
 				data_cond.wait(lk);
-			}*/
-			//data_cond.
-
-
-				//mut.lock();
+			}
+			
+					
 		while (!stream.eof())
 		{
-
-
-
 			ff = stream.get();
 
 			if (ff > 0)
@@ -59,11 +51,11 @@ void Sweets::readFile(std::string &filepath)
 					this->buf.push(file_buffer);
 
 					file_buffer.clear();
-					flag = false;
-					//data_cond.wait(lk);
-					//    data_cond.notify_all();
-							lk.unlock();
-						//	mut.unlock();
+					//flag = false;
+					  
+					lk.unlock();
+					data_cond.notify_one();
+						
 
 				}
 			}
@@ -185,13 +177,13 @@ void Sweets::writeToFile(std::string& filepath)
 			cout <<"data  "<< dataToFile<<std::endl;
 		//	mut.unlock();
 			//	data_cond.notify_one();
-	//		lkc.unlock();
-
+			lkc.unlock();
+			data_cond.notify_one();
 			//		result.close();
 
 
 		}
-		result.close();
+	//	result.close();
 	//}
 
 	//catch (const std::exception&)
